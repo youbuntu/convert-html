@@ -1,0 +1,38 @@
+{
+  "name": "convert-html",
+  "scripts": {
+    "dev": "vike dev",
+    "build": "vike build",
+    "preview": "vike build && vike preview",
+    "lint": "biome lint --write .",
+    "format": "biome format --write .",
+    "deploy": "vike build && wrangler deploy",
+    "generate-types": "wrangler types"
+  },
+  "dependencies": {
+    "@mantine/core": "^9.5.1",
+    "@mantine/hooks": "^9.5.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "vike": "^0.4.260",
+    "vike-react": "^0.6.25"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.7",
+    "@cloudflare/vite-plugin": "^1.51.1",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^6.0.5",
+    "oxlint": "^1.78.0",
+    "oxlint-tsgolint": "^7.0.2001",
+    "postcss": "^8.5.26",
+    "postcss-preset-mantine": "^1.18.0",
+    "postcss-simple-vars": "^7.0.1",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^6.0.3",
+    "vite": "^8.2.1",
+    "wrangler": "^4.120.0"
+  },
+  "type": "module"
+}
