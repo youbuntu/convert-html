@@ -5,5 +5,10 @@ import tailwindcss from "@tailwindcss/vite";
 import { cloudflare } from "@cloudflare/vite-plugin";
 
 export default defineConfig({
-  plugins: [vike(), react(), tailwindcss(), cloudflare({ viteEnvironment: { name: "ssr" } })],
+  plugins: [
+    vike(),
+    react(),
+    tailwindcss(),
+    cloudflare({ viteEnvironment: { name: "ssr" } }),
+  ],
 });

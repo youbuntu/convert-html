@@ -1,10 +1,7 @@
 {
   "overrides": [
     {
-      "includes": [
-        "**/+data.ts",
-        "**/+data.js"
-      ],
+      "includes": ["**/+data.ts", "**/+data.js"],
       "linter": {
         "rules": {
           "correctness": {
@@ -14,9 +11,7 @@
       }
     },
     {
-      "includes": [
-        "**/*.css"
-      ],
+      "includes": ["**/*.css"],
       "linter": {
         "rules": {
           "suspicious": {

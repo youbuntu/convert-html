@@ -6,8 +6,8 @@ import vikeReact from "vike-react/config";
 
 const config: Config = {
   // https://vike.dev/head-tags
-  title: "My Vike App",
-  description: "Demo showcasing Vike",
+  title: "Briefly | 오늘의 뉴스 브리핑",
+  description: "핵심만 선명하게 정리한 뉴스 요약과 시사점",
 
   extends: [vikeReact],
 
