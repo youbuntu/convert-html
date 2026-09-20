@@ -282,7 +282,7 @@ export async function createStandaloneHtml({
     viewport.content = `width=${EXPORT_WIDTH}`;
     exported.head.appendChild(viewport);
     const frozen = exported.createElement("style");
-    frozen.textContent = `${fontRules.join("\n")}\nhtml{width:${EXPORT_WIDTH}px;min-width:${EXPORT_WIDTH}px;font-size:16px}body{margin:0;width:${EXPORT_WIDTH}px;background:${view.getComputedStyle(doc.body).backgroundColor}}\n${pseudos.join("\n")}`;
+    frozen.textContent = `${fontRules.join("\n")}\nhtml{min-width:${EXPORT_WIDTH}px;font-size:16px}body{margin:0 auto;width:${EXPORT_WIDTH}px;background:${view.getComputedStyle(doc.body).backgroundColor}}\n${pseudos.join("\n")}`;
     exported.head.appendChild(frozen);
     exported.body.appendChild(output);
     return `<!doctype html>\n${exported.documentElement.outerHTML}`;

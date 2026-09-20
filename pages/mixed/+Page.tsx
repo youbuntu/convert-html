@@ -1,6 +1,7 @@
 import { Alert, Badge, Button, Progress, Table } from "@mantine/core";
 import { useRef, useState } from "react";
 import { downloadStandaloneHtml } from "../../components/exportStandaloneHtml";
+import { PdfExportButton } from "../../components/PdfExportButton";
 
 const metrics = [
   {
@@ -125,6 +126,11 @@ export default function Page() {
             >
               HTML 내보내기
             </Button>
+            <PdfExportButton
+              targetRef={exportTarget}
+              title="월간 워크스페이스 리포트"
+              color="teal"
+            />
           </nav>
         </div>
       </header>

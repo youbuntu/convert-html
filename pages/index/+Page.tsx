@@ -16,6 +16,7 @@ import {
 } from "@mantine/core";
 import { useRef, useState } from "react";
 import { downloadStandaloneHtml } from "../../components/exportStandaloneHtml";
+import { PdfExportButton } from "../../components/PdfExportButton";
 
 const implications = [
   {
@@ -147,6 +148,11 @@ export default function Page() {
             >
               HTML 내보내기
             </Button>
+            <PdfExportButton
+              targetRef={exportTarget}
+              title="Briefly · AI 반도체 시장 전망"
+              size="xs"
+            />
           </Group>
         </Container>
       </header>

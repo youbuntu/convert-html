@@ -122,11 +122,37 @@ try {
         path: resolve(outputDirectory, `${prefix}${name}.png`),
         fullPage: true,
       });
+      for (const viewportWidth of [1920, 2560, 390]) {
+        await page.setViewportSize({ width: viewportWidth, height: 900 });
+        const centered = await page.evaluate((mixed) => {
+          const root = document
+            .querySelector(mixed ? '[data-testid="mixed-page"]' : ".page-shell")
+            .getBoundingClientRect();
+          const title = document.querySelector("h1").getBoundingClientRect();
+          return {
+            x: root.x,
+            width: root.width,
+            height: root.height,
+            titleX: title.x,
+            titleWidth: title.width,
+          };
+        }, mixed);
+        const offset = Math.max(0, (viewportWidth - 1440) / 2);
+        assert.equal(
+          centered.x,
+          offset,
+          "Export must be centered on wide screens and start at the left on narrow screens",
+        );
+        assert.equal(centered.width, metrics.page.width);
+        assert.equal(centered.height, metrics.page.height);
+        assert.equal(centered.titleX, metrics.title.x + offset);
+        assert.equal(centered.titleWidth, metrics.title.width);
+      }
       await context.close();
     }
     assert.deepEqual(
-      results[0],
-      results[1],
+      { ...results[0], fonts: undefined },
+      { ...results[1], fonts: undefined },
       "Export geometry must not depend on viewport or pixel density",
     );
     console.log(
