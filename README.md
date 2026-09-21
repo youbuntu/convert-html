@@ -15,6 +15,8 @@ pnpm create vike@latest --react --tailwindcss --mantine --cloudflare --oxlint --
 
 ## Standalone HTML 내보내기
 
+다른 도메인의 디자인 시스템 CSS는 `stylesheetReplacements`로 동일 출처의 로컬 사본을 지정할 수 있습니다. [외부 CSS 적용 가이드](docs/external-stylesheets.md)에 다운로드·연결 방법, 구현 원리, 실제 CORS/오프라인 검증 절차를 정리했습니다.
+
 **PDF 내보내기**는 동일한 standalone HTML을 별도 창에 생성하고 폰트·이미지 로딩 후 브라우저 인쇄창을 엽니다. 인쇄 대상에서 **PDF로 저장**을 선택하세요. 원래 페이지 본문은 변경하지 않으며, 인쇄 문서에만 A4 세로/12mm 여백과 고정 레이아웃 축소 배율을 적용합니다. 저장·취소·닫기 등으로 인쇄창이 종료되면 인쇄용 새 탭도 자동으로 닫힙니다. 원래 페이지 탭은 유지됩니다. 팝업이 차단된 경우 버튼 아래에 안내합니다.
 
 인쇄 흐름 검증: `node tests/print-html.mjs` (아래 HTML 테스트와 같은 실행 환경). 헤드리스 환경에서 실제 OS 인쇄창 대신 `print()` 호출을 관찰하고, 리소스 로딩·A4 배율·본문 불변·팝업 차단 처리를 확인합니다.

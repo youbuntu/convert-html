@@ -8,12 +8,15 @@ export interface HtmlExportOptions {
   target: HTMLElement;
   filename?: string;
   title?: string;
+  /** Exact external stylesheet URL -> same-origin copy used only for export. */
+  stylesheetReplacements?: Record<string, string>;
 }
 
 /** Export a static, selectable DOM snapshot, without a server or runtime scripts. */
 export async function createStandaloneHtml({
   target,
   title = document.title,
+  stylesheetReplacements = {},
 }: HtmlExportOptions) {
   const cache = new Map<string, Promise<string>>();
   const asDataUrl = (
@@ -66,33 +69,88 @@ export async function createStandaloneHtml({
     );
   };
   const fontRules: string[] = [];
-  async function readSheet(sheet: CSSStyleSheet): Promise<string> {
+  async function readLocalSheet(path: string): Promise<string> {
+    const url = new URL(path, document.baseURI);
+    if (url.origin !== window.location.origin) {
+      throw new Error(`대체 CSS는 같은 출처여야 합니다: ${url.href}`);
+    }
+    const frame = document.createElement("iframe");
+    frame.setAttribute("aria-hidden", "true");
+    frame.tabIndex = -1;
+    frame.style.display = "none";
+    document.body.appendChild(frame);
+    try {
+      const doc = frame.contentDocument;
+      if (!doc) throw new Error("CSS 로딩 문서를 만들 수 없습니다.");
+      const link = doc.createElement("link");
+      link.rel = "stylesheet";
+      await new Promise<void>((resolve, reject) => {
+        const finish = (error?: Error) => {
+          clearTimeout(timer);
+          link.onload = null;
+          link.onerror = null;
+          if (error) reject(error);
+          else resolve();
+        };
+        const timer = window.setTimeout(
+          () => finish(new Error(`대체 CSS 로딩 시간 초과: ${url.href}`)),
+          30_000,
+        );
+        link.onload = () => finish();
+        link.onerror = () =>
+          finish(new Error(`대체 CSS 로딩 실패: ${url.href}`));
+        link.href = url.href;
+        doc.head.appendChild(link);
+      });
+      if (!link.sheet)
+        throw new Error(`대체 CSS를 읽을 수 없습니다: ${url.href}`);
+      // The local copy must be self-contained; do not apply replacements again.
+      return await readSheet(link.sheet, false);
+    } finally {
+      frame.remove();
+    }
+  }
+  async function readSheet(
+    sheet: CSSStyleSheet,
+    allowReplacement = true,
+  ): Promise<string> {
+    const replacement =
+      sheet.href &&
+      allowReplacement &&
+      Object.hasOwn(stylesheetReplacements, sheet.href)
+        ? stylesheetReplacements[sheet.href]
+        : undefined;
+    if (replacement !== undefined) return readLocalSheet(replacement);
     let rules: CSSRuleList;
     try {
       rules = sheet.cssRules;
     } catch {
       throw new Error(
-        `외부 스타일시트에 접근할 수 없습니다. 같은 출처에서 제공해 주세요: ${sheet.href}`,
+        `외부 스타일시트에 접근할 수 없습니다. 같은 출처에서 제공하거나 stylesheetReplacements에 로컬 CSS를 지정해 주세요: ${sheet.href}`,
       );
     }
     const result: string[] = [];
     for (const rule of Array.from(rules)) {
-      if (rule instanceof CSSImportRule) {
-        if (!rule.styleSheet)
+      // Replacement rules belong to another iframe realm: avoid instanceof.
+      if (rule.type === CSSRule.IMPORT_RULE) {
+        const importRule = rule as CSSImportRule;
+        if (!importRule.styleSheet)
           throw new Error("스타일시트가 아직 로드되지 않았습니다.");
-        const imported = await readSheet(rule.styleSheet);
-        result.push(
-          rule.media.mediaText
-            ? `@media ${rule.media.mediaText}{${imported}}`
-            : imported,
-        );
+        let imported = await readSheet(importRule.styleSheet, allowReplacement);
+        if (importRule.media.mediaText)
+          imported = `@media ${importRule.media.mediaText}{${imported}}`;
+        if (importRule.supportsText)
+          imported = `@supports (${importRule.supportsText}){${imported}}`;
+        if (importRule.layerName !== null)
+          imported = `@layer ${importRule.layerName}{${imported}}`;
+        result.push(imported);
       } else {
         const text = await embedUrls(
           rule.cssText,
           sheet.href ?? document.baseURI,
         );
         result.push(text);
-        if (rule instanceof CSSFontFaceRule) fontRules.push(text);
+        if (rule.type === CSSRule.FONT_FACE_RULE) fontRules.push(text);
       }
     }
     return result.join("\n");
@@ -101,7 +159,12 @@ export async function createStandaloneHtml({
     await Promise.all(
       Array.from(document.styleSheets)
         .filter((sheet) => !sheet.disabled)
-        .map(readSheet),
+        .map(async (sheet) => {
+          const css = await readSheet(sheet);
+          return sheet.media.mediaText
+            ? `@media ${sheet.media.mediaText}{${css}}`
+            : css;
+        }),
     )
   ).join("\n");
   const frame = document.createElement("iframe");

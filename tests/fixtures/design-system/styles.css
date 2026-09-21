@@ -1,0 +1,32 @@
+@import url("./tokens.css") layer(tokens) supports(display: grid) screen;
+@import url("./unsupported.css") supports(display: not-a-real-display);
+
+@font-face {
+  font-family: "ExportFixture";
+  src: url("./font.woff2") format("woff2");
+  font-weight: 400;
+}
+
+.ds-card {
+  box-sizing: border-box;
+  width: 420px;
+  padding: 24px;
+  border: 2px solid rgb(30, 80, 160);
+  font:
+    16px "ExportFixture",
+    sans-serif;
+  background-image: url("./background.svg");
+}
+
+.ds-button {
+  padding: 12px 20px;
+  border: 0;
+  background: var(--ds-primary);
+  color: white;
+  font: inherit;
+}
+
+.ds-button::before {
+  content: "✓ ";
+  color: rgb(255, 220, 100);
+}

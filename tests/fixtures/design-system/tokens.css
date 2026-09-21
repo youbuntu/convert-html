@@ -1,0 +1,6 @@
+:root {
+  --ds-primary: rgb(22, 119, 255);
+}
+.ds-card {
+  border-radius: 12px;
+}
